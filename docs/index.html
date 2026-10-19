@@ -76,14 +76,17 @@ header .wrap { display: flex; align-items: center; justify-content: space-betwee
 
 /* Try it */
 #try { padding: 120px 0; border-top: 1px solid var(--line); }
-.try { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 48px; align-items: start; }
-.chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.chip { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px; border-radius: 12px; border: 0; background: var(--card); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); font: inherit; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer; }
+.try { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 56px; align-items: end; }
+.chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 40px; }
+.chip { display: flex; align-items: center; gap: 16px; min-height: 96px; padding: 18px; border-radius: 16px; border: 0; background: var(--card); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: background .15s, box-shadow .15s; }
+.chip:hover { background: #22222A; }
 .chip[aria-pressed="true"] { background: rgba(240,89,42,.12); box-shadow: inset 0 0 0 2px var(--accent), 0 6px 18px rgba(240,89,42,.18); }
-.mini { position: relative; flex: none; width: 30px; height: 31px; border-radius: 7px; background: var(--s); }
-.mini::after { content: ""; position: absolute; left: 4px; top: 2px; width: 22px; height: 22px; border-radius: 5px; background: var(--t); }
-.chip.hit .mini { transform: translateY(2px); }
-textarea { width: 100%; min-height: 150px; margin-top: 18px; padding: 18px; border-radius: 14px; border: 0; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); font: 18px/1.5 'Bricolage Grotesque', sans-serif; resize: vertical; }
+.chip strong { display: block; font-size: 18px; font-weight: 700; }
+.chip small { display: block; margin-top: 4px; font-size: 14px; line-height: 1.4; color: var(--sec); }
+.mini { position: relative; flex: none; width: 44px; height: 43px; border-radius: 10px; background: var(--s); transition: transform .06s; }
+.mini::after { content: ""; position: absolute; left: 6px; top: 2px; width: 32px; height: 32px; border-radius: 8px; background: var(--t); box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
+.chip.hit .mini { transform: translateY(3px); }
+textarea { width: 100%; min-height: 150px; padding: 18px; border-radius: 14px; border: 0; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); font: 18px/1.5 'Bricolage Grotesque', sans-serif; resize: vertical; }
 textarea:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
 .levels { display: grid; grid-template-columns: 64px minmax(0, 1fr) 110px; gap: 14px; align-items: center; margin-top: 18px; font-size: 15px; }
 .levels output { color: var(--sec); font-variant-numeric: tabular-nums; }
@@ -100,11 +103,12 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
 #quiet { height: 380vh; }
 #quiet .stage { display: flex; align-items: center; padding: 96px 0; }
 .quiet { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 48px; width: 100%; }
-.quiet h2 { display: flex; flex-direction: column; font-size: clamp(28px, 3.6vw, 52px); line-height: 1; }
+.quiet h2 { display: flex; flex-direction: column; font-size: clamp(26px, 3.1vw, 46px); line-height: 1.02; }
+.quiet h2 span { white-space: nowrap; }
 .quiet h2 span { opacity: .14; transition: opacity .3s; }
 .quiet h2 span.on { opacity: 1; }
 .quiet > div { flex: 1 1 340px; min-width: 0; }
-.shot { flex: 0 1 auto; width: auto; min-width: 0; max-width: 52%; max-height: calc(100svh - 220px); border-radius: 12px; box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06); overflow: hidden; will-change: transform; }
+.shot { flex: 0 1 auto; width: auto; min-width: 0; max-width: 48%; max-height: calc(100svh - 220px); border-radius: 12px; box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06); overflow: hidden; will-change: transform; }
 .ticker { position: absolute; left: 0; right: 0; bottom: 18px; overflow: hidden; border-top: 1px solid rgba(255,255,255,.08); padding-top: 14px; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--sec); }
 .marquee { display: flex; width: max-content; animation: marquee 40s linear infinite; }
 .marquee span { padding: 0 28px; white-space: nowrap; }
@@ -155,6 +159,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 
 @media (max-width: 860px) {
   .try { grid-template-columns: 1fr; }
+  .chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* Too narrow to show the lines and the window side by side: stack them, unpinned. */
   #quiet { height: auto; }
   #quiet .stage { position: relative; height: auto; padding-bottom: 80px; }
@@ -163,7 +168,8 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
-  .chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chips { grid-template-columns: 1fr; }
+  .quiet h2 span { white-space: normal; }
   .steps { grid-template-columns: 1fr; }
   .levels { grid-template-columns: 56px minmax(0, 1fr) 84px; }
 }
@@ -224,16 +230,20 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
   </section>
 
   <section id="try">
-    <div class="wrap try">
-      <div>
-        <p class="eyebrow">02 — Try it</p>
-        <h2 class="big" style="font-size: clamp(36px, 5vw, 68px); margin: 16px 0 18px">Type here.<br>Hear every switch.</h2>
-        <p class="lead">These are the same recordings Clacky plays. Pick a switch, then type anything. Space, Enter and Delete sound deeper, like they do in the app.</p>
-        <label for="pad" class="note" style="display: block; margin-top: 28px">Type something</label>
-        <textarea id="pad" placeholder="The quick brown fox jumps over the lazy dog…"></textarea>
-        <div class="levels">
-          <label for="vol">Volume</label><input id="vol" type="range" min="0" max="100" value="80"><output id="vol-out" for="vol">80%</output>
-          <label for="tone">Tone</label><input id="tone" type="range" min="-4" max="4" step="1" value="0"><output id="tone-out" for="tone">As recorded</output>
+    <div class="wrap">
+      <div class="try">
+        <div>
+          <p class="eyebrow">02 — Try it</p>
+          <h2 class="big" style="font-size: clamp(36px, 5vw, 68px); margin: 16px 0 18px">Type here.<br>Hear every switch.</h2>
+          <p class="lead">These are the same recordings Clacky plays. Pick a switch below, then type anything. Space, Enter and Delete sound deeper, like they do in the app.</p>
+        </div>
+        <div>
+          <label for="pad" class="note" style="display: block; margin-bottom: 12px">Type something</label>
+          <textarea id="pad" placeholder="The quick brown fox jumps over the lazy dog…"></textarea>
+          <div class="levels">
+            <label for="vol">Volume</label><input id="vol" type="range" min="0" max="100" value="80"><output id="vol-out" for="vol">80%</output>
+            <label for="tone">Tone</label><input id="tone" type="range" min="-4" max="4" step="1" value="0"><output id="tone-out" for="tone">As recorded</output>
+          </div>
         </div>
       </div>
       <div class="chips" id="chips" role="group" aria-label="Switch"></div>
@@ -453,8 +463,9 @@ packs.forEach((p) => {
   b.type = 'button';
   b.className = 'chip';
   b.setAttribute('aria-pressed', p === chosen ? 'true' : 'false');
-  b.innerHTML = `<span class="mini" aria-hidden="true"></span><span></span>`;
-  b.lastChild.textContent = p.name;
+  b.innerHTML = `<span class="mini" aria-hidden="true"></span><span><strong></strong><small></small></span>`;
+  b.querySelector('strong').textContent = p.name;
+  b.querySelector('small').textContent = p.desc;
   b.firstChild.style.setProperty('--s', p.side);
   b.firstChild.style.setProperty('--t', p.top);
   b.addEventListener('click', () => {
