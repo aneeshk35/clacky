@@ -5,7 +5,8 @@ import CoreAudio
 
 /// Plays keystroke buffers with low latency through a pool of player voices.
 public final class SoundEngine {
-    public let engine = AVAudioEngine()
+    /// Replaced by a fresh one on every restart (see `start()`).
+    public private(set) var engine = AVAudioEngine()
     public var bank: SoundBank?
 
     /// 0 keeps every key centered; 1 spreads keys left to right like the physical keyboard.
@@ -55,12 +56,19 @@ public final class SoundEngine {
     private var startGeneration = 0
     private var retry: DispatchWorkItem?
     private var retryDelay: TimeInterval = 0.5
+    /// Whether `engine` has been started on a device, so the next start needs a fresh one.
+    private var engineUsed = false
 
     /// Pass `offlineFormat` to render into buffers instead of the speakers (used by the checks).
     public init(offlineFormat: AVAudioFormat? = nil) throws {
         if let offlineFormat {
             try engine.enableManualRenderingMode(.offline, format: offlineFormat, maximumFrameCount: 4096)
         }
+        buildGraph()
+    }
+
+    /// The voices and their wiring, on the current `engine`.
+    private func buildGraph() {
         voices = (0..<Self.positions).map { _ in
             (0..<Self.voicesPerPosition).map { _ in
                 let voice = AVAudioPlayerNode()
@@ -69,12 +77,27 @@ public final class SoundEngine {
                 return voice
             }
         }
+        nextVoice = [Int](repeating: 0, count: Self.positions)
         // Plugging in headphones or switching outputs stops the engine; bring it back.
+        if let configurationObserver { NotificationCenter.default.removeObserver(configurationObserver) }
         configurationObserver = NotificationCenter.default.addObserver(
             forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main
         ) { [weak self] _ in
             self?.startWhenPossible()
         }
+    }
+
+    /// Swaps in a brand-new engine, the way relaunching Clacky would. An engine that has already
+    /// played through one device can come back running but silent on another (say, 44.1 kHz
+    /// speakers to 48 kHz AirPods, or after the Mac sleeps), so each restart starts clean.
+    private func replaceEngine() {
+        let volume = self.volume
+        engine.stop()
+        engine = AVAudioEngine()
+        buildGraph()
+        self.volume = volume
+        sampleTimeAtStart = nil
+        engineUsed = false
     }
 
     deinit {
@@ -93,7 +116,9 @@ public final class SoundEngine {
         var failure: Error = NSError(domain: "Clacky", code: 1,
                                      userInfo: [NSLocalizedDescriptionKey: "This Mac has no sound output."])
         for (index, device) in candidates.enumerated() {
+            if engineUsed { replaceEngine() }
             guard use(device) else { continue }
+            engineUsed = true
             do {
                 try startEngine()
                 activeOutput = device

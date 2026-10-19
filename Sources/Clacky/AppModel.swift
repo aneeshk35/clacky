@@ -118,6 +118,8 @@ final class AppModel: ObservableObject {
     private var hotKey: HotKey?
     private var frontmostAppID: String?
     private var pendingPreview: DispatchWorkItem?
+    /// Set at launch and after waking, to log once that keys are coming through.
+    private var awaitingFirstKey = true
 
     private enum Key {
         static let enabled = "enabled"
@@ -161,6 +163,7 @@ final class AppModel: ObservableObject {
         do {
             let engine = try SoundEngine()
             engine.onOutputAvailabilityChange = { [weak self] available in
+                log.notice("\(available ? "Sound is flowing" : "Sound output stalled", privacy: .public)")
                 self?.isAudioStalled = !available
                 self?.refreshOutputStatus()
             }
@@ -240,6 +243,10 @@ final class AppModel: ObservableObject {
     // MARK: Keys
 
     private func handleKey(_ keyCode: Int, phase: KeyPhase) {
+        if awaitingFirstKey {
+            awaitingFirstKey = false
+            log.notice("Hearing keys")  // never which key
+        }
         guard isEnabled, phase == .down || playsKeyUp, microphoneUser == nil,
               !quietApps.contains(where: { $0.id == frontmostAppID })
         else { return }
@@ -273,6 +280,7 @@ final class AppModel: ObservableObject {
     /// A new key tap and a restarted sound engine.
     private func startFresh() {
         log.notice("Starting fresh after sleep")
+        awaitingFirstKey = true
         if hasPermission {
             monitor.stop()
             if !monitor.start() {
