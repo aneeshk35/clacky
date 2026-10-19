@@ -2,6 +2,8 @@
 
 A macOS app that plays mechanical keyboard sounds whenever you type, anywhere on the system, using real recordings of keyboards.
 
+**Website:** https://aneeshk35.github.io/clacky/ · **Download:** [Clacky.zip](https://github.com/aneeshk35/clacky/releases/latest/download/Clacky.zip) (macOS 13 or later). Clacky isn't notarized yet, so the first time you open it, go to System Settings → Privacy & Security and click **Open Anyway**.
+
 Its colors are "Sorbet, dark": an ink window, a pastel keycap for each switch, and tangerine for everything you can change. They live in `Sources/Clacky/Theme.swift`. Clacky stays dark even when the Mac is in light mode.
 
 ## Build and run
