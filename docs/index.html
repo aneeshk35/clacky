@@ -3,382 +3,235 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Clacky: mechanical keyboard sounds for your Mac</title>
+<title>Clacky: real keyboard sounds for your Mac</title>
 <meta name="description" content="Clacky plays real recordings of mechanical keyboards as you type, in any app on your Mac.">
-<meta name="theme-color" content="#0E0E11">
+<meta name="theme-color" content="#F3F1EC">
 <link rel="icon" type="image/png" href="assets/favicon-64.png">
 <link rel="apple-touch-icon" href="assets/icon-256.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --ink: #0E0E11; --ground: #17171C; --card: #1D1D24; --line: #2A2A33; --text: #F4F4F6; --sec: #A9AAB6;
-  --accent: #F0592A; --light: #F2F2F4; --light-ink: #141418; --light-sec: #5D5F6E;
+  --paper: #F3F1EC; --card: #FBFAF7; --ink: #18181B; --sec: #5E5D66; --line: #DCD8CF;
+  --accent: #F0592A; --accent-text: #B93E10;
+  --serif: 'Instrument Serif', 'Times New Roman', serif;
+  --sans: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'Geist Mono', ui-monospace, Menlo, monospace;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--ink); color: var(--text); font-family: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: clip; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
-a:hover { color: var(--accent); }
-img { max-width: 100%; display: block; }
-.wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
-.eyebrow { margin: 0; font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--sec); }
-.big { margin: 0; font-weight: 800; text-transform: uppercase; letter-spacing: -.035em; line-height: .92; }
-.lead { margin: 0; font-size: 19px; line-height: 1.5; color: var(--sec); max-width: 540px; }
-.button { display: inline-flex; align-items: center; gap: 10px; height: 54px; padding: 0 28px; border-radius: 27px; background: var(--accent); color: var(--ink); font-size: 17px; font-weight: 700; text-decoration: none; }
-.button:hover { color: var(--ink); filter: brightness(1.06); }
-.button svg { flex: none; }
-.note { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--sec); }
+.label { margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--sec); }
+.label b { color: var(--accent-text); font-weight: 500; }
+.btn { display: inline-flex; align-items: center; gap: 12px; height: 48px; padding: 0 22px; border: 1px solid var(--ink); font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; background: none; color: var(--ink); cursor: pointer; }
+.btn.solid { background: var(--ink); color: var(--paper); }
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn.solid:hover { background: var(--accent-text); border-color: var(--accent-text); }
+.ghost-num { position: absolute; font-family: var(--serif); font-size: clamp(180px, 30vh, 320px); line-height: .8; color: transparent; -webkit-text-stroke: 1.5px rgba(24,24,27,.12); pointer-events: none; user-select: none; }
+h2.statement { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(48px, 7.4vw, 120px); line-height: .95; letter-spacing: -.01em; }
+h2.statement em { display: block; font-style: normal; color: var(--accent-text); }
+.lede { margin: 0; font-family: var(--serif); font-style: italic; font-size: clamp(22px, 2.2vw, 32px); line-height: 1.25; color: var(--ink); max-width: 760px; }
 
-/* Header */
-header { position: sticky; top: 0; z-index: 20; background: rgba(14,14,17,.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; padding-bottom: 14px; }
-.logo { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; text-decoration: none; }
-.logo img { width: 28px; height: 28px; border-radius: 7px; }
-.pill { display: inline-flex; align-items: center; height: 38px; padding: 0 18px; border-radius: 19px; background: var(--text); color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none; }
-.pill:hover { color: var(--ink); }
-.progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); }
+/* The strip: panels side by side, moved sideways as you scroll down. */
+.track { position: relative; }
+.stage { position: relative; }
+.strip { display: flex; flex-direction: column; }
+.panel { position: relative; min-height: 100vh; min-height: 100svh; padding: 96px 6vw 72px; display: flex; flex-direction: column; justify-content: center; gap: 28px; border-bottom: 1px solid var(--line); overflow: hidden; }
+.h-mode .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.h-mode .strip { flex-direction: row; height: 100%; will-change: transform; }
+.h-mode .panel { flex: none; width: 100vw; height: 100%; min-height: 0; border-bottom: 0; border-right: 1px solid var(--line); }
+
+/* Top bar */
+.bar { position: fixed; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 6vw; pointer-events: none; }
+.bar > * { pointer-events: auto; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; text-decoration: none; }
+.brand img { width: 24px; height: 24px; border-radius: 6px; }
+.counter { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--sec); }
+.progress { position: fixed; left: 0; right: 0; top: 0; height: 2px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); z-index: 11; }
 
 /* Hero */
-.hero { padding: 64px 24px 104px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 30px; }
-.pedestal { position: relative; width: min(440px, 92%); height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
-.glow { position: absolute; bottom: 70px; width: 280px; height: 46px; border-radius: 50%; background: rgba(240,89,42,.32); filter: blur(30px); }
-.hero-key { position: relative; z-index: 1; margin-bottom: -14px; border: 0; padding: 0; background: none; cursor: pointer; }
-.bob { animation: bob 3.2s ease-in-out infinite; }
-@keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
-.keycap { position: relative; width: 184px; height: 178px; border-radius: 40px; background: var(--side, #FBD0C3); box-shadow: 0 34px 60px rgba(0,0,0,.55); transition: transform .08s; }
-.keycap::after { content: attr(data-legend); position: absolute; left: 12%; right: 12%; top: 4%; bottom: 19%; border-radius: 28px; background: var(--top, #fff); display: flex; align-items: center; justify-content: center; padding-bottom: 8px; font-family: ui-rounded, 'SF Pro Rounded', -apple-system, sans-serif; font-size: 84px; font-weight: 600; line-height: 1; color: var(--accent); box-shadow: inset 0 2px 0 rgba(255,255,255,.6); }
-.hero-key:active .keycap, .keycap.down { transform: translateY(6px); }
-.slab-top { width: 100%; height: 16px; border-radius: 10px 10px 0 0; background: #2A2A33; box-shadow: inset 0 1px 0 rgba(255,255,255,.28); }
-.slab { width: 100%; height: 72px; background: #15151A; box-shadow: 0 40px 80px rgba(0,0,0,.7); }
-.hero h1 { font-size: clamp(44px, 7vw, 96px); max-width: 980px; }
-.cta { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px; }
+.hero { justify-content: space-between; padding-top: 72px; }
+.wordmark { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(120px, 27vw, 420px); line-height: .78; letter-spacing: -.035em; }
+.hero-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px; }
+.hero .lede { max-width: 640px; }
+.hero .lede b { font-style: normal; font-weight: 400; color: var(--accent-text); }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.inside-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 30px; }
+.cap { position: relative; width: 30px; height: 29px; border-radius: 7px; background: var(--s); }
+.cap::after { content: ""; position: absolute; left: 4px; top: 2px; width: 22px; height: 21px; border-radius: 5px; background: var(--t); }
+.scroll-cue { display: flex; align-items: center; gap: 18px; padding: 16px 20px; border: 1px solid var(--ink); font-family: var(--serif); font-style: italic; font-size: 20px; text-decoration: none; }
+.tagline { position: absolute; top: 84px; right: 6vw; text-align: right; line-height: 1.7; }
 
-/* Pinned scenes */
-.track { position: relative; }
-.stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
-#switches { height: 560vh; }
-#switches .stage { display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 96px 24px 56px; text-align: center; }
-.tiles { position: absolute; inset: 0; pointer-events: none; }
-.tiles span { position: absolute; border-radius: 22%; opacity: 0; }
-.tiles span::after { content: ""; position: absolute; left: 12%; right: 12%; top: 4%; bottom: 18%; border-radius: 18%; background: var(--t); }
-.spinner { perspective: 1000px; }
-.spinner button { border: 0; padding: 0; background: none; cursor: pointer; }
-#bigkey { width: clamp(170px, 24vw, 300px); height: auto; aspect-ratio: 1 / .97; border-radius: 22%; --top: #B5D8FF; --side: #8DBBEF; transition: background-color .25s; }
-#bigkey::after { content: ""; border-radius: 18%; transition: background-color .25s; }
-.switch-name { font-size: clamp(26px, 3.6vw, 44px); font-weight: 800; letter-spacing: -.02em; text-transform: uppercase; }
-.switch-desc { margin-top: 8px; font-size: 16px; color: var(--sec); min-height: 24px; }
-.swap { animation: swap .35s ease both; }
-@keyframes swap { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
-.hint { margin-top: 10px; }
+/* Statement panels */
+.statement-panel { gap: 34px; }
 
-/* Try it */
-#try { padding: 120px 0; border-top: 1px solid var(--line); }
-.try { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px 56px; align-items: end; }
-.chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 40px; }
-.chip { display: flex; align-items: center; gap: 16px; min-height: 96px; padding: 18px; border-radius: 16px; border: 0; background: var(--card); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); font: inherit; text-align: left; cursor: pointer; transition: background .15s, box-shadow .15s; }
-.chip:hover { background: #22222A; }
-.chip[aria-pressed="true"] { background: rgba(240,89,42,.12); box-shadow: inset 0 0 0 2px var(--accent), 0 6px 18px rgba(240,89,42,.18); }
-.chip strong { display: block; font-size: 18px; font-weight: 700; }
-.chip small { display: block; margin-top: 4px; font-size: 14px; line-height: 1.4; color: var(--sec); }
-.mini { position: relative; flex: none; width: 44px; height: 43px; border-radius: 10px; background: var(--s); transition: transform .06s; }
-.mini::after { content: ""; position: absolute; left: 6px; top: 2px; width: 32px; height: 32px; border-radius: 8px; background: var(--t); box-shadow: inset 0 1px 0 rgba(255,255,255,.5); }
-.chip.hit .mini { transform: translateY(3px); }
-textarea { width: 100%; min-height: 150px; padding: 18px; border-radius: 14px; border: 0; background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); color: var(--text); font: 18px/1.5 'Bricolage Grotesque', sans-serif; resize: vertical; }
-textarea:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
-.levels { display: grid; grid-template-columns: 64px minmax(0, 1fr) 110px; gap: 14px; align-items: center; margin-top: 18px; font-size: 15px; }
-.levels output { color: var(--sec); font-variant-numeric: tabular-nums; }
-input[type=range] { width: 100%; accent-color: var(--accent); }
+/* Index panels: a heading on the left, numbered cards on the right */
+.index { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); gap: 56px; align-items: center; height: 100%; }
+.index h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(42px, 4.6vw, 76px); line-height: .98; }
+.index h2 em { display: block; font-style: italic; color: var(--accent-text); }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.card { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 22px; background: var(--card); border: 1px solid var(--line); text-align: left; font: inherit; color: inherit; }
+button.card { cursor: pointer; transition: transform .15s, border-color .15s; }
+button.card:hover { transform: translateY(-3px); border-color: var(--ink); }
+button.card[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.card .num { position: absolute; top: 18px; right: 20px; font-family: var(--mono); font-size: 11px; color: var(--sec); }
+.card .tile { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); color: var(--accent-text); }
+.card h3 { margin: 4px 0 0; font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1.05; }
+.card p { margin: 0; font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.35; color: var(--sec); }
+.card .cap { width: 40px; height: 39px; border-radius: 9px; }
+.card .cap::after { left: 5px; top: 2px; width: 30px; height: 29px; border-radius: 7px; box-shadow: inset 0 1px 0 rgba(255,255,255,.6); }
+.card.hit .cap { transform: translateY(2px); }
 
-/* Light section */
-.light { position: relative; background: var(--light); color: var(--light-ink); padding: 190px 24px; overflow: hidden; }
-.light .eyebrow, .light .lead { color: var(--light-sec); }
-.floaters span { position: absolute; font-family: var(--mono); color: rgba(20,20,24,.3); will-change: transform; }
-.center { position: relative; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 22px; }
-.center h2 { font-size: clamp(40px, 6.4vw, 88px); }
+/* Closer */
+.closer { background: var(--ink); color: var(--paper); }
+.closer .label { color: #A9AAB6; }
+.closer h2.statement em { color: var(--accent); }
+.closer .lede { color: var(--paper); }
+.closer .btn { border-color: var(--paper); color: var(--paper); }
+.closer .btn.solid { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+.closer .ghost-num { -webkit-text-stroke-color: rgba(243,241,236,.12); }
+.foot { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 40px; }
+.foot a, .foot span { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #A9AAB6; text-decoration: none; }
+.foot a:hover { color: var(--paper); }
 
-/* Quiet */
-#quiet { height: 380vh; }
-#quiet .stage { display: flex; align-items: center; padding: 96px 0; }
-.quiet { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 48px; width: 100%; }
-.quiet h2 { display: flex; flex-direction: column; font-size: clamp(26px, 3.1vw, 46px); line-height: 1.02; }
-.quiet h2 span { white-space: nowrap; }
-.quiet h2 span { opacity: .14; transition: opacity .3s; }
-.quiet h2 span.on { opacity: 1; }
-.quiet > div { flex: 1 1 340px; min-width: 0; }
-.shot { flex: 0 1 auto; width: auto; min-width: 0; max-width: 48%; max-height: calc(100svh - 220px); border-radius: 12px; box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06); overflow: hidden; will-change: transform; }
-.ticker { position: absolute; left: 0; right: 0; bottom: 18px; overflow: hidden; border-top: 1px solid rgba(255,255,255,.08); padding-top: 14px; font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--sec); }
-.marquee { display: flex; width: max-content; animation: marquee 40s linear infinite; }
-.marquee span { padding: 0 28px; white-space: nowrap; }
-@keyframes marquee { to { transform: translateX(-50%) } }
+/* Panels arrive: their contents slide in from the right (or up, when stacked). */
+.panel .in-a { opacity: 0; transform: translateX(60px); transition: opacity .8s ease, transform .8s ease; }
+.strip:not(.h) .panel:not(.seen) .in-a { transform: translateY(40px); }
+.panel.seen .in-a { opacity: 1; transform: none; }
+.panel.seen .in-a:nth-child(2) { transition-delay: .08s; }
+.panel.seen .in-a:nth-child(3) { transition-delay: .16s; }
 
-/* Inside */
-#inside { padding: 140px 0; border-top: 1px solid var(--line); }
-.inside { display: flex; flex-wrap: wrap; gap: 32px; }
-.inside .eyebrow { position: sticky; top: 120px; }
-.inside ul { flex: 3 1 600px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; align-items: flex-end; text-align: right; font-size: clamp(32px, 5.6vw, 80px); line-height: 1.02; letter-spacing: -.03em; font-weight: 800; text-transform: uppercase; }
-.inside li { opacity: .14; }
-
-/* Rows, FAQ, install */
-.section { padding: 112px 0; }
-.section-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 48px; }
-.section-head h2 { font-size: clamp(36px, 5.2vw, 72px); max-width: 780px; }
-.count { font-family: var(--mono); font-size: 40px; color: var(--accent); }
-.light-block { background: var(--light); color: var(--light-ink); }
-.light-block .eyebrow { color: var(--light-sec); }
-.light-block .count { color: #C2410C; }
-.row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; padding: 22px 0; border-top: 1px solid #D9D9E1; }
-.row:last-child { border-bottom: 1px solid #D9D9E1; }
-.row .n { flex: 0 0 56px; font-family: var(--mono); font-size: 13px; color: var(--light-sec); }
-.row .name { flex: 1 1 260px; display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 700; }
-.row .name i { width: 14px; height: 14px; border-radius: 4px; }
-.row .d { flex: 2 1 340px; font-size: 16px; line-height: 1.5; color: var(--light-sec); }
-details { border-bottom: 1px solid var(--line); }
-summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 0; font-size: 21px; font-weight: 600; cursor: pointer; }
-summary::-webkit-details-marker { display: none; }
-summary b { font-size: 26px; font-weight: 400; color: var(--accent); transition: transform .2s; }
-details[open] summary b { transform: rotate(45deg); }
-details p { margin: 0 0 22px; max-width: 760px; font-size: 16px; line-height: 1.6; color: var(--sec); }
-.faq { border-top: 1px solid var(--line); }
-.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 56px; text-align: left; }
-.step { padding: 22px; border-radius: 18px; background: rgba(14,14,17,.12); }
-.step b { display: block; font-family: var(--mono); font-size: 12px; color: #3A1A10; margin-bottom: 10px; }
-.step p { margin: 0; font-size: 16px; line-height: 1.45; }
-#download { background: var(--accent); color: var(--ink); padding: 140px 0 120px; text-align: center; }
-#download h2 { font-size: clamp(52px, 9vw, 128px); line-height: .88; }
-#download .note { color: #3A1A10; }
-.dark-button { background: var(--ink); color: #fff; }
-.dark-button:hover { color: #fff; }
-footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding-top: 28px; padding-bottom: 28px; font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--sec); }
-
-/* Reveal on scroll */
-.rise { opacity: 0; transform: translateY(48px); transition: opacity .7s ease, transform .7s ease; }
-.rise.in { opacity: 1; transform: none; }
-
-@media (max-width: 860px) {
-  .try { grid-template-columns: 1fr; }
-  .chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  /* Too narrow to show the lines and the window side by side: stack them, unpinned. */
-  #quiet { height: auto; }
-  #quiet .stage { position: relative; height: auto; padding-bottom: 80px; }
-  .quiet h2 span { opacity: 1; }
-  .shot { max-width: 100%; max-height: none; }
-  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 1100px) {
+  .card { padding: 16px; }
+  .card h3 { font-size: 22px; }
+  .card p { font-size: 15px; }
 }
-@media (max-width: 560px) {
-  .chips { grid-template-columns: 1fr; }
-  .quiet h2 span { white-space: normal; }
-  .steps { grid-template-columns: 1fr; }
-  .levels { grid-template-columns: 56px minmax(0, 1fr) 84px; }
+@media (max-width: 899px) {
+  .index { grid-template-columns: 1fr; gap: 32px; }
+}
+@media (max-width: 720px) {
+  .cards { grid-template-columns: 1fr; }
+  .tagline { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .bob, .marquee { animation: none; }
-  .rise { opacity: 1; transform: none; transition: none; }
+  .panel .in-a { opacity: 1; transform: none; transition: none; }
 }
 </style>
 </head>
 <body>
+<div class="progress" aria-hidden="true"></div>
+<div class="bar">
+  <a class="brand" href="#p0" data-panel="0"><img src="assets/icon-256.png" alt="">Clacky</a>
+  <span class="counter" aria-hidden="true"><span id="count">00</span> / 06</span>
+</div>
 
-<header>
-  <div class="wrap">
-    <a class="logo" href="#top"><img src="assets/icon-256.png" alt="">Clacky</a>
-    <a class="pill" href="#download">Download for Mac</a>
-  </div>
-  <div class="progress" aria-hidden="true"></div>
-</header>
+<div class="track" id="track">
+  <div class="stage">
+    <main class="strip" id="strip">
 
-<main>
-  <section class="hero" id="top">
-    <div class="pedestal">
-      <div class="glow" aria-hidden="true"></div>
-      <button class="hero-key" type="button" aria-label="Press the key to hear Creamy Thock">
-        <div class="bob"><div class="keycap" data-legend="c"></div></div>
-      </button>
-      <div class="slab-top" aria-hidden="true"></div>
-      <div class="slab" aria-hidden="true"></div>
-    </div>
-    <h1 class="big">Every keystroke, a little more satisfying.</h1>
-    <p class="lead">Real recordings of mechanical keyboards, played as you type, in any app on your Mac.</p>
-    <div class="cta">
-      <a class="button" href="#download">
-        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-        Download for Mac
-      </a>
-      <a class="note" href="#try">Or try it here first ↓</a>
-    </div>
-  </section>
-
-  <section class="track" id="switches">
-    <div class="stage">
-      <div class="tiles" aria-hidden="true"></div>
-      <div>
-        <p class="eyebrow">01 — The switch</p>
-        <h2 class="big" style="font-size: clamp(36px, 5.4vw, 72px); margin-top: 12px">Nine switches.<br>Pick your sound.</h2>
-      </div>
-      <div class="spinner">
-        <button type="button" id="bigkey-button" aria-label="Hear this switch"><div class="keycap" id="bigkey"></div></button>
-      </div>
-      <div aria-live="polite">
-        <div class="switch-name" id="switch-name">Clicky (Real)</div>
-        <div class="switch-desc" id="switch-desc">Crisp clicks from real recordings.</div>
-        <div class="note hint">Click the key to hear it</div>
-      </div>
-    </div>
-  </section>
-
-  <section id="try">
-    <div class="wrap">
-      <div class="try">
-        <div>
-          <p class="eyebrow">02 — Try it</p>
-          <h2 class="big" style="font-size: clamp(36px, 5vw, 68px); margin: 16px 0 18px">Type here.<br>Hear every switch.</h2>
-          <p class="lead">These are the same recordings Clacky plays. Pick a switch below, then type anything. Space, Enter and Delete sound deeper, like they do in the app.</p>
+      <section class="panel hero" id="p0">
+        <p class="label tagline">Real recordings<br>Any app<br>On your Mac</p>
+        <h1 class="wordmark in-a">Clacky</h1>
+        <div class="hero-row">
+          <div class="in-a">
+            <p class="lede">Real recordings of mechanical keyboards, played <b>every time you press a key</b>, in any app on your Mac. Nine switches. One quiet little app.</p>
+            <div class="ctas">
+              <a class="btn solid" href="https://github.com/aneeshk35/clacky/releases/latest/download/Clacky.zip">Download for Mac (it's free)</a>
+              <a class="btn" href="#p3" data-panel="3">Hear the switches →</a>
+            </div>
+            <div class="inside-row" id="inside-row" aria-label="Switches inside">
+              <span class="label" style="margin-right: 6px">Switches inside</span>
+            </div>
+          </div>
+          <a class="scroll-cue in-a" href="#p1" data-panel="1">Scroll to read <span aria-hidden="true">⟶</span></a>
         </div>
-        <div>
-          <label for="pad" class="note" style="display: block; margin-bottom: 12px">Type something</label>
-          <textarea id="pad" placeholder="The quick brown fox jumps over the lazy dog…"></textarea>
-          <div class="levels">
-            <label for="vol">Volume</label><input id="vol" type="range" min="0" max="100" value="80"><output id="vol-out" for="vol">80%</output>
-            <label for="tone">Tone</label><input id="tone" type="range" min="-4" max="4" step="1" value="0"><output id="tone-out" for="tone">As recorded</output>
+        <span class="ghost-num" style="left: 3vw; bottom: -40px" aria-hidden="true">00</span>
+      </section>
+
+      <section class="panel statement-panel" id="p1">
+        <p class="label in-a"><b>01</b> &nbsp;On typing</p>
+        <h2 class="statement in-a">Your keyboard is quiet.<em>It shouldn't be.</em></h2>
+        <p class="lede in-a">Every press deserves the sound of a real switch: the click, the thock, the little spring back up.</p>
+        <span class="ghost-num" style="right: 4vw; top: 70px" aria-hidden="true">01</span>
+      </section>
+
+      <section class="panel statement-panel" id="p2">
+        <p class="label in-a"><b>02</b> &nbsp;On switches</p>
+        <h2 class="statement in-a">Nine real switches.<em>One click apart.</em></h2>
+        <p class="lede in-a">Each one is cut from public-domain recordings of a real keyboard. No synthesizers, no samples of samples.</p>
+        <span class="ghost-num" style="right: 4vw; top: 70px" aria-hidden="true">02</span>
+      </section>
+
+      <section class="panel wide" id="p3">
+        <div class="index">
+          <div class="in-a">
+            <p class="label" style="margin-bottom: 22px"><b>03</b> &nbsp;The switches</p>
+            <h2>Pick a sound.<em>Then forget it's there.</em></h2>
+            <p class="lede" style="margin-top: 22px; font-size: 22px">Click any switch to hear it.</p>
+          </div>
+          <div class="cards in-a" id="switch-cards" role="group" aria-label="Switches"></div>
+        </div>
+        <span class="ghost-num" style="left: 3vw; bottom: -40px" aria-hidden="true">03</span>
+      </section>
+
+      <section class="panel wide" id="p4">
+        <div class="index">
+          <div class="in-a">
+            <p class="label" style="margin-bottom: 22px"><b>04</b> &nbsp;On realism</p>
+            <h2>It sounds like a keyboard.<em>Not a sound effect.</em></h2>
+          </div>
+          <div class="cards in-a">
+            <div class="card"><span class="num">01</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></span><h3>Every key its own</h3><p>Each key gets a slightly different pitch, under half a semitone, and keeps it.</p></div>
+            <div class="card"><span class="num">02</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span><h3>Never the same twice</h3><p>Several recordings per key, picked at random, so repeats never sound copied.</p></div>
+            <div class="card"><span class="num">03</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h3>One sound per press</h3><p>Hold a key and it plays once. Auto-repeat never stacks clicks.</p></div>
+            <div class="card"><span class="num">04</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></span><h3>The way back up</h3><p>Real switches make a softer second sound when you let go. So does Clacky.</p></div>
+            <div class="card"><span class="num">05</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="6" rx="2"/></svg></span><h3>Big keys sound bigger</h3><p>Space, Enter and Delete use deeper versions of the press.</p></div>
+            <div class="card"><span class="num">06</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4M17 12h4M9 8l-2 4 2 4M15 8l2 4-2 4"/></svg></span><h3>Where it sits</h3><p>With stereo width up, keys come from where they are on the keyboard, left to right.</p></div>
           </div>
         </div>
-      </div>
-      <div class="chips" id="chips" role="group" aria-label="Switch"></div>
-    </div>
-  </section>
+        <span class="ghost-num" style="left: 3vw; bottom: -40px" aria-hidden="true">04</span>
+      </section>
 
-  <section class="light">
-    <div class="floaters" aria-hidden="true">
-      <span data-speed="0.5" style="left: 6%; top: 10%; font-size: 22px">+2.4%</span>
-      <span data-speed="0.25" style="left: 15%; top: 30%; font-size: 15px">⌘</span>
-      <span data-speed="0.1" style="left: 4%; top: 52%; font-size: 18px">ESC</span>
-      <span data-speed="0.6" style="left: 20%; top: 70%; font-size: 26px">−1.2%</span>
-      <span data-speed="0.2" style="left: 9%; top: 86%; font-size: 14px">TAB</span>
-      <span data-speed="0.15" style="left: 28%; top: 14%; font-size: 13px">⇧</span>
-      <span data-speed="0.3" style="left: 31%; top: 90%; font-size: 16px">SPACE</span>
-      <span data-speed="0.55" style="left: 84%; top: 9%; font-size: 24px">−2.4%</span>
-      <span data-speed="0.25" style="left: 72%; top: 24%; font-size: 15px">⌥</span>
-      <span data-speed="0.1" style="left: 90%; top: 40%; font-size: 18px">⏎</span>
-      <span data-speed="0.6" style="left: 78%; top: 62%; font-size: 28px">+1.2%</span>
-      <span data-speed="0.2" style="left: 92%; top: 80%; font-size: 14px">⌫</span>
-      <span data-speed="0.12" style="left: 66%; top: 88%; font-size: 16px">±0</span>
-    </div>
-    <div class="center">
-      <p class="eyebrow rise">03 — Every key</p>
-      <h2 class="big rise">Every key sounds a little different.</h2>
-      <p class="lead rise">Like a real keyboard, each key gets its own pitch, never more than half a semitone off, and keeps it.</p>
-    </div>
-  </section>
-
-  <section class="track" id="quiet">
-    <div class="stage">
-      <div class="wrap quiet">
-        <div>
-          <p class="eyebrow" style="margin-bottom: 18px">04 — Quiet when it should be</p>
-          <h2 class="big" id="lines">
-            <span>Pauses on calls.</span>
-            <span style="color: #FFC7A8">Silent in games.</span>
-            <span>⌃⌥⌘C anywhere.</span>
-            <span style="color: #B8EDD6">Blind to passwords.</span>
-          </h2>
-          <p class="lead" style="margin-top: 18px; font-size: 17px">Clacky goes quiet while another app uses the microphone, stays silent in the apps you choose, and macOS keeps it out of password fields entirely.</p>
+      <section class="panel wide" id="p5">
+        <div class="index">
+          <div class="in-a">
+            <p class="label" style="margin-bottom: 22px"><b>05</b> &nbsp;On quiet &amp; privacy</p>
+            <h2>It knows when to stay quiet.<em>And what it never hears.</em></h2>
+          </div>
+          <div class="cards in-a">
+            <div class="card"><span class="num">01</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg></span><h3>Quiet on calls</h3><p>Pauses while another app uses the microphone: Zoom, FaceTime, Meet, dictation. macOS 14 or later.</p></div>
+            <div class="card"><span class="num">02</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></span><h3>Silent where you want</h3><p>Pick apps, like games, where Clacky stays quiet while they're in front.</p></div>
+            <div class="card"><span class="num">03</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg></span><h3>⌃⌥⌘C anywhere</h3><p>One shortcut turns Clacky on or off from any app. The Dock says “Off” while it's off.</p></div>
+            <div class="card"><span class="num">04</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3>Blind to passwords</h3><p>macOS blocks it entirely while you type into a password field.</p></div>
+            <div class="card"><span class="num">05</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h6"/></svg></span><h3>Only key codes</h3><p>It learns which physical key went down or came up, plays a sound, and moves on.</p></div>
+            <div class="card"><span class="num">06</span><span class="tile" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg></span><h3>Plays where you'll hear it</h3><p>A monitor with no speakers? Clacky moves to your Mac's speakers and tells you.</p></div>
+          </div>
         </div>
-        <img class="shot" id="shot" src="assets/app-window.png" width="1360" height="1252" alt="The Clacky window: an on/off switch, nine switch cards, and volume and tone sliders">
-      </div>
-      <div class="ticker" aria-hidden="true">
-        <div class="marquee">
-          <span>● Playing through MacBook Pro Speakers</span><span style="color: #FFC7A8">● Paused while the microphone is on</span><span>● Off</span><span style="color: #B8EDD6">● Quiet in the apps you pick</span><span style="color: #FFE38F">● Listening for keys</span>
-          <span>● Playing through MacBook Pro Speakers</span><span style="color: #FFC7A8">● Paused while the microphone is on</span><span>● Off</span><span style="color: #B8EDD6">● Quiet in the apps you pick</span><span style="color: #FFE38F">● Listening for keys</span>
+        <span class="ghost-num" style="left: 3vw; bottom: -40px" aria-hidden="true">05</span>
+      </section>
+
+      <section class="panel closer" id="p6">
+        <p class="label in-a"><b style="color: var(--accent)">06</b> &nbsp;A signature</p>
+        <h2 class="statement in-a">Every key.<em>Satisfying.</em></h2>
+        <div class="in-a">
+          <div class="ctas">
+            <a class="btn solid" href="https://github.com/aneeshk35/clacky/releases/latest/download/Clacky.zip">Download for Mac (it's free)</a>
+            <a class="btn" href="classic/">See the other site</a>
+          </div>
+          <p class="lede" style="margin-top: 28px; font-size: 22px; color: #A9AAB6">macOS 13 or later. Not notarized yet: the first time, open System Settings → Privacy &amp; Security and click Open Anyway.</p>
+          <div class="foot">
+            <a href="https://github.com/aneeshk35/clacky">Source on GitHub</a>
+            <a href="https://github.com/aneeshk35/clacky/blob/main/Resources/Sound%20Packs/CREDITS.md">Sound credits (CC0)</a>
+            <span>© 2026 Clacky</span>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
+        <span class="ghost-num" style="right: 4vw; top: 70px" aria-hidden="true">06</span>
+      </section>
 
-  <section id="inside">
-    <div class="wrap inside">
-      <div style="flex: 1 1 200px"><p class="eyebrow">05 — What's inside <span style="color: var(--accent)">/ 09</span></p></div>
-      <ul id="inside-list">
-        <li>Real recordings</li>
-        <li style="color: #B5D8FF">Nine switches</li>
-        <li>Every key its own</li>
-        <li style="color: #FFE38F">One sound per press</li>
-        <li>Release sounds</li>
-        <li style="color: #FFC7A8">Stereo placement</li>
-        <li>Deeper or brighter</li>
-        <li style="color: #B8EDD6">Quiet on calls</li>
-        <li style="color: #D9CCFF">Your own sounds</li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="section light-block">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow rise">06 — The switches</p>
-          <h2 class="big rise" style="margin-top: 16px">Made for the way you already type.</h2>
-        </div>
-        <span class="count rise">09</span>
-      </div>
-      <div id="rows"></div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow rise">07 — Questions</p>
-          <h2 class="big rise" style="margin-top: 16px">Frequently<br>asked questions</h2>
-        </div>
-        <span class="count rise">10</span>
-      </div>
-      <div class="faq">
-        <details class="rise"><summary>What is Clacky?<b aria-hidden="true">+</b></summary><p>A Mac app that plays real recordings of mechanical keyboards every time you press a key, in any app. Pick a switch, set the volume and tone, and forget it's there.</p></details>
-        <details class="rise"><summary>Can it see what I type?<b aria-hidden="true">+</b></summary><p>It gets key codes: which physical key went down or came up, so it knows which sound to play. macOS blocks it entirely while you type into a password field.</p></details>
-        <details class="rise"><summary>Why does it ask for Input Monitoring?<b aria-hidden="true">+</b></summary><p>That's the macOS permission that lets an app hear key presses in other apps. You can turn it off any time in System Settings, under Privacy &amp; Security.</p></details>
-        <details class="rise"><summary>Why does macOS say it can't check Clacky for malware?<b aria-hidden="true">+</b></summary><p>Clacky isn't notarized by Apple yet, so the first time you open it macOS stops it. Open System Settings → Privacy &amp; Security, scroll down, and click Open Anyway. You only do this once. The source code is on GitHub if you'd rather build it yourself.</p></details>
-        <details class="rise"><summary>Will people on my calls hear it?<b aria-hidden="true">+</b></summary><p>Clacky can pause while another app is using the microphone, like Zoom, FaceTime, Meet or dictation, and says which app in its window. Turn it on in Settings → Stay Quiet. This needs macOS 14 or later.</p></details>
-        <details class="rise"><summary>Does holding a key spam clicks?<b aria-hidden="true">+</b></summary><p>No. A held key plays once, like a real keyboard. macOS's auto-repeat never adds more.</p></details>
-        <details class="rise"><summary>Can I add my own sounds?<b aria-hidden="true">+</b></summary><p>Yes. Every folder in Clacky's Sound Packs folder is a switch. Name the files like standard-down-1.wav; WAV, AIFF, CAF, MP3 and M4A all work.</p></details>
-        <details class="rise"><summary>My monitor has no speakers. Now what?<b aria-hidden="true">+</b></summary><p>On Automatic, Clacky notices the output can't play and switches to your Mac's speakers, then tells you. Or pick a specific output in Settings.</p></details>
-        <details class="rise"><summary>Which Macs does it run on?<b aria-hidden="true">+</b></summary><p>macOS 13 or later. Pausing during calls needs macOS 14 or later.</p></details>
-        <details class="rise"><summary>Where do the sounds come from?<b aria-hidden="true">+</b></summary><p>They're cut from public-domain (CC0) recordings of real keyboards on Freesound.org. Every source is credited in the app's Sound Packs folder.</p></details>
-      </div>
-    </div>
-  </section>
-
-  <section id="download">
-    <div class="wrap">
-      <h2 class="big rise">Every key.<br><span style="color: #fff">Satisfying.</span></h2>
-      <div class="cta rise" style="margin-top: 28px">
-        <a class="button dark-button" href="https://github.com/aneeshk35/clacky/releases/latest/download/Clacky.zip">
-          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0592A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-          Download for Mac
-        </a>
-        <span class="note">macOS 13 or later · Version 0.1.0 · Free</span>
-      </div>
-      <div class="steps">
-        <div class="step rise"><b>01</b><p>Unzip Clacky and drag it into Applications.</p></div>
-        <div class="step rise"><b>02</b><p>Open it. If macOS stops it, go to System Settings → Privacy &amp; Security and click Open Anyway.</p></div>
-        <div class="step rise"><b>03</b><p>Allow Clacky under Input Monitoring so it can hear your keys.</p></div>
-        <div class="step rise"><b>04</b><p>Pick a switch and start typing.</p></div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <span>Clacky</span>
-    <a href="https://github.com/aneeshk35/clacky">Source on GitHub</a>
-    <span>Sounds: public-domain (CC0) recordings, Freesound.org</span>
-    <a href="#top">Back to top ↑</a>
+    </main>
   </div>
-</footer>
+</div>
 
 <script>
 const packs = [
@@ -392,177 +245,117 @@ const packs = [
   { name: 'MX Red', slug: 'mx-red', files: 4, top: '#FFC2CF', side: '#F29AAE', desc: 'Smooth, light Cherry MX Red linears.' },
   { name: 'Thocky', slug: 'thocky', files: 4, top: '#B8EDD6', side: '#88D3B4', desc: 'Medium-deep thock with a little more resonance.' },
 ];
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const clamp = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
-const $ = (s) => document.querySelector(s);
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-// ---- Sound: the same recordings the app plays ----
-let audio, volume = 0.8, tone = 0;
+// ---- Sound: the recordings the app plays ----
+let audio;
 const buffers = {};
-function sounds(pack) {
+function load(p) {
   audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-  if (!buffers[pack.slug]) {
-    buffers[pack.slug] = Promise.all(Array.from({ length: pack.files }, (_, i) =>
-      fetch(`sounds/${pack.slug}/${i + 1}.wav`).then((r) => r.arrayBuffer()).then((b) => audio.decodeAudioData(b))));
-  }
-  return buffers[pack.slug];
+  buffers[p.slug] = buffers[p.slug] || Promise.all(Array.from({ length: p.files }, (_, i) =>
+    fetch(`sounds/${p.slug}/${i + 1}.wav`).then((r) => r.arrayBuffer()).then((b) => audio.decodeAudioData(b))));
+  return buffers[p.slug];
 }
-async function play(pack, deep = false) {
-  const list = await sounds(pack);
+async function play(p) {
+  const list = await load(p);
   if (audio.state === 'suspended') await audio.resume();
   const src = audio.createBufferSource();
   src.buffer = list[Math.floor(Math.random() * list.length)];
-  src.playbackRate.value = (deep ? 0.84 : 1) * (1 + (Math.random() - 0.5) * 0.04);
-  // Tone: a low shelf and a high shelf, like the app (deeper: more body, less click).
-  const low = audio.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 250;
-  low.gain.value = tone < 0 ? -6 * tone : -4 * tone;
-  const high = audio.createBiquadFilter(); high.type = 'highshelf'; high.frequency.value = 2500;
-  high.gain.value = tone < 0 ? 12 * tone : 6 * tone;
-  const gain = audio.createGain(); gain.gain.value = volume;
-  src.connect(low).connect(high).connect(gain).connect(audio.destination);
+  src.playbackRate.value = 1 + (Math.random() - 0.5) * 0.04;
+  const gain = audio.createGain();
+  gain.gain.value = 0.85;
+  src.connect(gain).connect(audio.destination);
   src.start();
 }
 
-// ---- Hero key ----
-const heroKey = $('.hero-key');
-heroKey.addEventListener('click', () => play(packs[2]));
+// ---- Switch cards and the little keycap row ----
+const row = document.getElementById('inside-row');
+const cardsEl = document.getElementById('switch-cards');
+packs.forEach((p, i) => {
+  const cap = document.createElement('span');
+  cap.className = 'cap';
+  cap.title = p.name;
+  cap.style.setProperty('--s', p.side);
+  cap.style.setProperty('--t', p.top);
+  row.appendChild(cap);
 
-// ---- Switch scene ----
-const bigKey = $('#bigkey'), nameEl = $('#switch-name'), descEl = $('#switch-desc');
-let current = -1;
-function showSwitch(i) {
-  if (i === current) return;
-  current = i;
-  const p = packs[i];
-  bigKey.style.setProperty('--top', p.top);
-  bigKey.style.setProperty('--side', p.side);
-  bigKey.style.backgroundColor = p.side;
-  nameEl.textContent = p.name;
-  descEl.textContent = p.desc;
-  for (const el of [nameEl, descEl]) { el.classList.remove('swap'); void el.offsetWidth; el.classList.add('swap'); }
-}
-$('#bigkey-button').addEventListener('click', () => {
-  bigKey.classList.add('down'); setTimeout(() => bigKey.classList.remove('down'), 90);
-  play(packs[Math.max(0, current)]);
-});
-const tiles = $('.tiles');
-const tileSpots = [[6, 14, 72], [17, 64, 56], [3, 44, 48], [25, 24, 40], [74, 12, 64], [87, 44, 76], [71, 68, 52], [91, 18, 40], [12, 84, 44], [84, 80, 40]];
-tileSpots.forEach(([x, y, size], i) => {
-  const t = document.createElement('span');
-  const p = packs[i % packs.length];
-  Object.assign(t.style, { left: x + '%', top: y + '%', width: size + 'px', height: size * 0.97 + 'px', background: p.side });
-  t.style.setProperty('--t', p.top);
-  tiles.appendChild(t);
-});
-
-// ---- Try it ----
-let chosen = packs[2];
-const chips = $('#chips');
-packs.forEach((p) => {
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.className = 'chip';
-  b.setAttribute('aria-pressed', p === chosen ? 'true' : 'false');
-  b.innerHTML = `<span class="mini" aria-hidden="true"></span><span><strong></strong><small></small></span>`;
-  b.querySelector('strong').textContent = p.name;
-  b.querySelector('small').textContent = p.desc;
-  b.firstChild.style.setProperty('--s', p.side);
-  b.firstChild.style.setProperty('--t', p.top);
-  b.addEventListener('click', () => {
-    chosen = p;
-    chips.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = 'card';
+  card.setAttribute('aria-pressed', 'false');
+  card.innerHTML = `<span class="num">${String(i + 1).padStart(2, '0')}</span><span class="cap" aria-hidden="true"></span><h3></h3><p></p>`;
+  card.querySelector('.cap').style.setProperty('--s', p.side);
+  card.querySelector('.cap').style.setProperty('--t', p.top);
+  card.querySelector('h3').textContent = p.name;
+  card.querySelector('p').textContent = p.desc;
+  card.addEventListener('click', () => {
+    cardsEl.querySelectorAll('.card').forEach((c) => c.setAttribute('aria-pressed', c === card ? 'true' : 'false'));
+    card.classList.add('hit');
+    setTimeout(() => card.classList.remove('hit'), 90);
     play(p);
   });
-  chips.appendChild(b);
-});
-const held = new Set();
-$('#pad').addEventListener('keydown', (e) => {
-  if (e.repeat || held.has(e.code) || e.metaKey || e.ctrlKey) return;
-  held.add(e.code);
-  play(chosen, e.key === ' ' || e.key === 'Enter' || e.key === 'Backspace');
-  const chip = [...chips.children][packs.indexOf(chosen)];
-  chip.classList.add('hit'); setTimeout(() => chip.classList.remove('hit'), 80);
-});
-$('#pad').addEventListener('keyup', (e) => held.delete(e.code));
-const toneNames = ['Deepest', 'Deeper', 'Deeper', 'A bit deeper', 'As recorded', 'A bit brighter', 'Brighter', 'Brighter', 'Brightest'];
-$('#vol').addEventListener('input', (e) => { volume = e.target.value / 100; $('#vol-out').textContent = e.target.value + '%'; });
-$('#tone').addEventListener('input', (e) => { tone = e.target.value / 4; $('#tone-out').textContent = toneNames[+e.target.value + 4]; });
-
-// ---- Switch list ----
-$('#rows').innerHTML = packs.map((p, i) =>
-  `<div class="row rise"><span class="n">${String(i + 1).padStart(2, '0')}</span><span class="name"><i style="background:${p.side}"></i></span><span class="d"></span></div>`).join('');
-[...$('#rows').children].forEach((row, i) => {
-  row.querySelector('.name').append(packs[i].name);
-  row.querySelector('.d').textContent = packs[i].desc;
+  cardsEl.appendChild(card);
 });
 
-// ---- Scroll-driven scenes ----
-const progressBar = $('.progress');
-const switchTrack = $('#switches'), quietTrack = $('#quiet');
-const lines = [...document.querySelectorAll('#lines span')];
-const shot = $('#shot');
-const insideItems = [...document.querySelectorAll('#inside-list li')];
-const floaters = [...document.querySelectorAll('.floaters span')];
-const heroBob = $('.hero .bob');
+// ---- Sideways travel: scrolling down moves the strip of panels to the left ----
+const track = document.getElementById('track');
+const strip = document.getElementById('strip');
+const panels = [...strip.children];
+const progress = document.querySelector('.progress');
+const count = document.getElementById('count');
+const wide = matchMedia('(min-width: 900px) and (min-height: 560px)');
+let travel = 0;
 
-function trackProgress(el) {
-  const r = el.getBoundingClientRect();
-  const total = el.offsetHeight - innerHeight;
-  return total > 0 ? clamp(-r.top / total) : 0;
+function layout() {
+  const horizontal = wide.matches;
+  document.body.classList.toggle('h-mode', horizontal);
+  strip.classList.toggle('h', horizontal);
+  if (horizontal) {
+    travel = strip.scrollWidth - innerWidth;
+    track.style.height = travel + innerHeight + 'px';
+  } else {
+    travel = 0;
+    track.style.height = '';
+    strip.style.transform = '';
+  }
+  frame();
 }
 function frame() {
+  const y = scrollY;
   const max = document.documentElement.scrollHeight - innerHeight;
-  progressBar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
-
-  // Hero: the key sinks into its pedestal as you leave.
-  const heroOut = clamp(scrollY / 500);
-  heroKey.style.transform = reduceMotion ? '' : `translateY(${heroOut * 70}px) scale(${1 - heroOut * 0.16})`;
-  heroKey.style.opacity = 1 - heroOut * 0.65;
-
-  // Switches: the key turns face-on, then cycles through every switch.
-  const p = trackProgress(switchTrack);
-  const spin = reduceMotion ? 1 : clamp(p / 0.12);
-  bigKey.parentElement.style.transform = `rotateX(${72 * (1 - spin)}deg) rotateZ(${-12 * (1 - spin)}deg) scale(${0.55 + 0.45 * spin})`;
-  showSwitch(Math.min(packs.length - 1, Math.floor(clamp((p - 0.12) / 0.86) * packs.length)));
-  [...tiles.children].forEach((t, i) => {
-    const v = clamp((p - i * 0.012) / 0.1);
-    t.style.opacity = v * 0.55;
-    t.style.transform = reduceMotion ? '' : `scale(${0.3 + 0.7 * v})`;
-  });
-
-  // Quiet: each line lights up in turn while the window lifts into place.
-  const q = trackProgress(quietTrack);
-  lines.forEach((line, i) => line.classList.toggle('on', q >= 0.06 + i * 0.18));
-  const lift = reduceMotion ? 1 : clamp(q / 0.3);
-  shot.style.transform = `perspective(1200px) translateY(${(1 - lift) * 140}px) rotateX(${(1 - lift) * 24}deg) scale(${0.86 + 0.14 * lift})`;
-  shot.style.opacity = 0.15 + 0.85 * lift;
-
-  // What's inside: each line lights as it crosses the middle of the screen.
-  const mid = innerHeight / 2;
-  for (const li of insideItems) {
-    const r = li.getBoundingClientRect();
-    const d = Math.abs(r.top + r.height / 2 - mid) / mid;
-    li.style.opacity = 0.14 + 0.86 * (1 - clamp(d));
+  progress.style.transform = `scaleX(${max > 0 ? y / max : 0})`;
+  let current = 0;
+  if (document.body.classList.contains('h-mode')) {
+    const x = clamp(y - track.offsetTop, 0, travel);
+    strip.style.transform = `translate3d(${-x}px, 0, 0)`;
+    panels.forEach((p, i) => { if (p.offsetLeft <= x + innerWidth * 0.5) current = i; });
+  } else {
+    panels.forEach((p, i) => { if (p.offsetTop <= y + innerHeight * 0.5) current = i; });
   }
-  // Floating legends drift at different speeds.
-  if (!reduceMotion) {
-    for (const f of floaters) {
-      const r = f.parentElement.getBoundingClientRect();
-      f.style.transform = `translateY(${(r.top + r.height / 2 - mid) * -f.dataset.speed}px)`;
-    }
-  }
+  count.textContent = String(current).padStart(2, '0');
   ticking = false;
 }
 let ticking = false;
 addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }, { passive: true });
-addEventListener('resize', frame);
-frame();
+addEventListener('resize', layout);
+wide.addEventListener('change', layout);
+document.fonts && document.fonts.ready.then(layout);
+layout();
 
-// Fade sections in as they arrive.
-const io = new IntersectionObserver((entries) => {
-  for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-}, { rootMargin: '0px 0px -10% 0px' });
-document.querySelectorAll('.rise').forEach((el) => io.observe(el));
+// Links to a panel scroll to the spot where that panel is in view.
+document.querySelectorAll('[data-panel]').forEach((a) => a.addEventListener('click', (e) => {
+  const p = panels[+a.dataset.panel];
+  if (!p) return;
+  e.preventDefault();
+  const top = document.body.classList.contains('h-mode') ? track.offsetTop + p.offsetLeft : p.offsetTop;
+  scrollTo({ top, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}));
+
+// Each panel's contents arrive the first time it comes into view.
+const seen = new IntersectionObserver((entries) => {
+  for (const e of entries) if (e.isIntersecting) { e.target.classList.add('seen'); seen.unobserve(e.target); }
+}, { threshold: 0.15 });
+panels.forEach((p) => seen.observe(p));
 </script>
 </body>
 </html>
